@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from src.config import MONGODB_URI
 from pymongo import MongoClient
-from src.modules.PyShuffle import PyShuffle
+# from src.modules.PyShuffle import PyShuffle
+from src.modules.shuffle import Shuffle
 from src.modules.Pagination import Pagination
 from datetime import datetime
 from typing import List, Dict
@@ -16,7 +17,7 @@ db = client.shuffle_mongo.db
 def shuffle(text):
     ip_address = request.environ.get(
         'HTTP_X_FORWARDED_FOR', request.remote_addr)
-    shuffled = PyShuffle(text).shuffle()
+    shuffled = Shuffle(text).shuffle()
 
     query = db.find_one({'ip_address': ip_address, 'text': text})
     
@@ -34,7 +35,7 @@ def shuffle(text):
                     'updated_at': datetime.now()
                 }})
         if update_query.modified_count:
-            return jsonify({'error': False, 'shuffled_result': shuffled}), 200
+            return jsonify({'error': False, 'shuffled_result': shuffled,'message':"rust"}), 200
         return jsonify({'error': True, 'message': "something went wrong"}), 500
 
     db_response = db.insert_one({
